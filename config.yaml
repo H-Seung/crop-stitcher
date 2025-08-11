@@ -1,0 +1,107 @@
+calibration:
+  horizontal_scale:
+    cam0: 1.0
+    cam1: 1.0
+    cam2: 1.0
+    cam3: 1.0
+    cam4: 1.0
+    cam5: 1.0
+  rotation_correction:
+    cam0: -2.05
+    cam1: -2.07
+    cam2: -3.0
+    cam3: -1.1
+    cam4: 2.94
+    cam5: -2.13
+  vertical_offset:
+    cam0: 72
+    cam1: 97
+    cam2: 105
+    cam3: 117
+    cam4: 122
+    cam5: 109
+  # horizontal_crop: 
+  #  cam0:
+  #    left: 100
+  #    right: 100
+  #  cam1:
+  #    left: 100
+  #    right: 100
+  #  cam2:
+  #    left: 100
+  #    right: 100
+  #  cam3:
+  #    left: 100
+  #    right: 100
+  #  cam4:
+  #    left: 100
+  #    right: 100
+  #  cam5:
+  #    left: 100
+  #    right: 100
+  vertical_crop:
+    crop_top: 150
+    crop_bottom: 1080
+
+camera:
+  count: 6
+  device_paths:
+  - /dev/video0
+  - /dev/video1
+  - /dev/video2
+  - /dev/video3
+  - /dev/video4
+  - /dev/video5
+  resolution:
+    height: 1080
+    width: 1920
+  # fov_deg: 93.07  # 실측값
+  fov_deg: 112  
+camera_layout:
+  cam0:
+    angle_end: 60
+    angle_start: 300
+    position: 0
+  cam1:
+    angle_end: 90
+    angle_start: 30
+    position: 1
+  cam2:
+    angle_end: 150
+    angle_start: 90
+    position: 2
+  cam3:
+    angle_end: 210
+    angle_start: 150
+    position: 3
+  cam4:
+    angle_end: 270
+    angle_start: 210
+    position: 4
+  cam5:
+    angle_end: 330
+    angle_start: 270
+    position: 5
+debug:
+  print_fps: true
+  save_frames: false
+  show_blend_regions: true
+  show_crop_lines: false
+  show_individual_cameras: false
+display:
+  fullscreen: false
+  resolution:
+    height: 1080
+    width: 1920
+  window_name: 360_panorama
+performance:
+  frame_skip: 0
+  processing_scale: 0.5
+  resize_for_processing: true
+  thread_count: 6
+  use_gpu_mat: true
+  use_threading: true
+stitching:
+  horizon_line:
+    y_ratio: 0.5
+  desired_view_angle: 60  # 중앙에서 보여주고 싶은 각도
