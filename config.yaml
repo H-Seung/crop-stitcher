@@ -39,9 +39,9 @@ calibration:
   #  cam5:
   #    left: 100
   #    right: 100
-  vertical_crop:
-    crop_top: 150
-    crop_bottom: 1080
+#  vertical_crop:
+#    crop_top: 150
+#    crop_bottom: 1080
 
 camera:
   count: 6
