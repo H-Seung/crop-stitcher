@@ -106,20 +106,75 @@ panorama_project/
 
 ## 리팩토링 원칙
 
-### ✅ 유지되는 것들
-- 모든 기존 기능과 로직
-- 기존 설정 파일 (config.yaml) 형식
-- 기존 외부 라이브러리 의존성
-- 기존 성능과 동작 방식
-
 ### ✅ 변경되는 것들  
 - 파일 구조: 단일 파일 → 여러 파일로 분리
 - 클래스 설계: 강결합 → 느슨한 결합 (인터페이스 기반)
 - 객체 생성: 직접 생성 → 팩토리 패턴
 - 책임 분리: 한 클래스가 여러 책임 → 각 클래스가 단일 책임
 
-### ❌ 추가하지 않는 것들
-- 새로운 기능이나 알고리즘
-- 기존에 없던 설정 옵션들
-- 추가적인 외부 라이브러리
-- 기존에 없던 로깅, 테스트, 문서화 기능
+
+## **1. Single Responsibility Principle (SRP)**
+각 클래스가 하나의 책임만 가지도록 분리:
+
+- `CameraCapture`: 카메라 프레임 캡처만 담당
+- `CropCalculator`: 크롭 영역 계산만 담당  
+- `GPUFrameProcessor`: 프레임 처리만 담당
+- `HorizontalStitcher`: 프레임 스티칭만 담당
+- `OpenCVDisplayManager`: 디스플레이 관리만 담당
+- `FPSCounter`: FPS 계산 및 표시만 담당
+- `PanoramaSystem`: 전체 시스템 조율만 담당
+
+## **2. Open/Closed Principle (OCP)**
+확장에는 열려있고 수정에는 닫혀있도록 인터페이스를 정의:
+
+- 새로운 프레임 처리 방식을 추가하려면 `FrameProcessor` 인터페이스를 구현
+- 다른 스티칭 알고리즘을 추가하려면 `FrameStitcher` 인터페이스를 구현
+- 다른 디스플레이 방식을 추가하려면 `DisplayManager` 인터페이스를 구현
+
+## **3. Liskov Substitution Principle (LSP)**
+인터페이스를 구현한 모든 클래스가 기본 인터페이스와 동일하게 동작하도록 설계:
+
+- 모든 `FrameProvider` 구현체는 동일한 방식으로 교체 가능
+- 모든 `FrameProcessor` 구현체는 동일한 방식으로 교체 가능
+
+## **4. Interface Segregation Principle (ISP)**
+클라이언트가 사용하지 않는 인터페이스에 의존하지 않도록 세분화된 인터페이스를 제공:
+
+- `FrameProvider`, `FrameProcessor`, `FrameStitcher`, `DisplayManager` 등 각각 필요한 메서드만 포함
+- 큰 인터페이스 대신 역할별로 분리된 작은 인터페이스들
+
+## **5. Dependency Inversion Principle (DIP)**
+고수준 모듈이 저수준 모듈에 의존하지 않고, 둘 다 추상화에 의존:
+
+- `PanoramaSystem`은 구체적인 구현체가 아닌 인터페이스에 의존
+- `PanoramaSystemFactory`에서 의존성 주입을 통해 구체적인 객체들을 생성하고 주입
+
+## **주요 개선사항:**
+
+1. **모듈화**: 기능별로 파일을 분리하여 유지보수성 향상
+2. **테스트 용이성**: 각 컴포넌트를 독립적으로 테스트 가능
+3. **확장성**: 새로운 기능 추가 시 기존 코드 수정 최소화
+4. **재사용성**: 각 컴포넌트를 다른 프로젝트에서도 재사용 가능
+5. **의존성 관리**: Factory 패턴을 통한 깔끔한 의존성 주입
+
+
+---
+> - 's' : screenshot
+> - 'q' or 'esc' : quit
+> - 가로 crop 방식
+>   - 사용자가 config 내 horizontal_crop 직접 설정
+>   - config 내 카메라 당 시야각(desired_view_angle)을 설정하면, 가로 최대화각(fov)을 기반으로 crop 영역 계산 (horizontal_crop은 주석처리)
+> - 세로 crop 방식
+>   - 사용자가 config 내 vertical_crop 직접 설정
+>   - `_auto_calculate_vertical_crop`이 모든 프레임에서 유효한 최소 영역을 찾아 크롭 범위를 계산
+> - calibration :
+>   - offset : (y축 중심) - (선택한 수평선의 y 평균값)
+>     - 선택한 수평선 > y축 중심 : 양수
+>     - 좌상단 원점 기준으로 이동 변환 
+>     - 중심보다 수평선이 위에 있을 경우 아래방향으로 이동변환해주기 위해 양수의 보정 offset값이 들어가야 함. 
+>   - angle : 선택한 수평선의 x1, y1, x2, y2로 arctan 계산
+>     - 좌상단이 원점이므로, 우상향이 음수
+>     - 회전보정에 쓰이는 함수에서는 반시계방향 각도가 양수
+>     - 우상향 line일 경우 우하향 각도로 보정해주기 위해 양수의 보정 각도값이 들어가야 함.
+
+

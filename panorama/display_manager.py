@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import time
+import logging
 from typing import Optional, Dict, Any
 from .interfaces import DisplayManager
 
@@ -10,6 +11,7 @@ class OpenCVDisplayManager(DisplayManager):
         self.config = config
         self.window_name = ""
         self.window_resized = False # 윈도우 창 크기 조정을 최초 한번만 실행하기 위한 flag
+        self.logger = logging.getLogger("OpenCVDisplayManager")
 
     def initialize_display(self, window_name: str) -> None:
         self.window_name = self.config['display'].get('window_name', window_name)
@@ -48,8 +50,10 @@ class OpenCVDisplayManager(DisplayManager):
     def handle_input(self) -> Optional[str]:
         key = cv2.waitKey(1) & 0xFF
         if key == ord('q') or key == 27:
+            self.logger.info(f"handle_input : {key} -> quit")
             return "quit"
         elif key == ord('s'):
+            self.logger.info(f"handle_input : {key} -> screenshot")
             return "screenshot"
         return None
 

@@ -1,8 +1,10 @@
+/.venv
+/__pycache__
+/panorama/__pycache__
+/.idea
+.gitignore
 /prev
 /prev2
 /del
-/.venv
 memo.txt
-/__pycache__
-/.idea
-/panorama/__pycache__
+/debug_images

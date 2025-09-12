@@ -15,9 +15,12 @@ class CropCalculator:
     def calculate_vertical_crop(self) -> Tuple[int, int]:
         """config 값으로 상하 크롭"""
         crop_config = self.config['calibration'].get('vertical_crop', {})
-        self.logger.debug(f"crop_config : {crop_config}")
+        if crop_config is None:
+            crop_config = {}
+        self.logger.info(f"crop_config : {crop_config}")
 
         if (
+                crop_config and
                 'crop_top' in crop_config and crop_config['crop_top'] is not None and
                 'crop_bottom' in crop_config and crop_config['crop_bottom'] is not None
         ):
@@ -34,6 +37,7 @@ class CropCalculator:
         회전 및 정렬 보정이 적용된 각 카메라 프레임들을 처리한 후,
         모든 프레임에서 유효한 최소 영역을 찾아 크롭 범위를 계산
         """
+        self.logger.info(f"config.yaml 내 vertical_crop 값이 없으므로 _auto_calculate_vertical_crop 실행")
         processed_frames = []
 
         # 각 카메라별로 샘플 프레임을 캡처하고 실제 전처리 과정을 거침
@@ -78,14 +82,18 @@ class CropCalculator:
             self.logger.warning("유효 영역을 찾지 못함, 전체 영역 사용")
             return 0, self.resolution[1]
 
+        # self.logger.info("==> valid_regions : ", valid_regions)
+        print("==> valid_regions : ", valid_regions)
+
         # 모든 프레임에서 공통으로 유효한 영역 계산
         max_top = max(region[0] for region in valid_regions)
         min_bottom = min(region[1] for region in valid_regions)
 
-        # 안전 마진 추가 (전체 높이의 2%)
-        margin = int(self.resolution[1] * 0.02)
-        crop_top = max(0, max_top + margin)
-        crop_bottom = min(self.resolution[1], min_bottom - margin)
+        # 안전 마진 추가 (프레임 높이의 config 내 margin(%) 만큼)
+        margin = self.config['calibration']['vertical_crop']['margin']
+        margin_px = int(self.resolution[1] * margin)
+        crop_top = max(0, max_top + margin_px)
+        crop_bottom = min(self.resolution[1], min_bottom - margin_px)
 
         self.logger.info(f"자동 크롭 범위 (처리된 프레임 기준): top={crop_top}, bottom={crop_bottom}")
         return crop_top, crop_bottom
@@ -101,15 +109,17 @@ class CropCalculator:
         return crop_pixels, crop_pixels
 
 
-class GPUFrameProcessor(FrameProcessor):
+class PanoramaFrameProcessor(FrameProcessor):
     def __init__(self, config: Dict[str, Any], resolution: Tuple[int, int]):
+        if not logging.getLogger().handlers:
+            logging.basicConfig(level=logging.INFO)
         self.config = config
         self.resolution = resolution
         crop_calculator = CropCalculator(config, resolution)
         self.crop_top, self.crop_bottom = crop_calculator.calculate_vertical_crop()
         self.cropped_height = self.crop_bottom - self.crop_top
         self.crop_calculator = crop_calculator
-        self.logger = logging.getLogger("GPUFrameProcessor")
+        self.logger = logging.getLogger("PanoramaFrameProcessor")
 
     def preprocess_frame(self, frame: np.ndarray, camera_id: int) -> np.ndarray:
         """프레임 전처리 과정, crop and align"""
@@ -117,14 +127,13 @@ class GPUFrameProcessor(FrameProcessor):
         rotate = calib['rotation_correction'].get(f'cam{camera_id}', 0)
         offset = calib['vertical_offset'].get(f'cam{camera_id}', 0)
         scale = calib['horizontal_scale'].get(f'cam{camera_id}', 1.0)
-        crop = calib.get('horizontal_crop', {}).get(f'cam{camera_id}', None)
-        self.logger.info(f"crop_top={self.crop_top}, crop_bottom={self.crop_bottom}") # ----------- 143, 1059 나옴
+        hcrop = calib.get('horizontal_crop', {}).get(f'cam{camera_id}', None)
 
-        if crop is None: # crop 값이 없을 때 fov 기반 자동 계산 (config에서 horizontal~right 주석처리)
+        if hcrop is None: # horizontal_crop 값이 없을 때 fov 기반 자동 계산 (config에서 horizontal~right 주석처리)
             left_crop, right_crop = self.crop_calculator.calculate_horizontal_crop_from_fov(camera_id)
         else:
-            left_crop = crop.get('left', 0)
-            right_crop = crop.get('right', 0)
+            left_crop = hcrop.get('left', 0)
+            right_crop = hcrop.get('right', 0)
 
         # 보정이 필요없는 경우 CPU에서 간단히 크롭만 처리
         if rotate == 0 and offset == 0 and scale == 1.0 and left_crop == 0 and right_crop == 0: # 보정 불필요할 경우 바로 crop만 수행하고 return (GPU 사용 안함)

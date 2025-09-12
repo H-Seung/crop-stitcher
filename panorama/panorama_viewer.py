@@ -70,7 +70,7 @@ class PanoramaViewer:
                 if action == "quit":
                     break
                 elif action == "screenshot":
-                    filename = f"panorama_{time.strftime('%Y%m%d_%H%M%S')}.jpg"
+                    filename = f"panorama_screenshot/panorama_{time.strftime('%Y%m%d_%H%M%S')}.jpg"
                     cv2.imwrite(filename, panorama)
                     self.logger.info(f"스크린샷 저장: {filename}")
 

@@ -1,7 +1,7 @@
 from typing import List
 from .config_manager import YamlConfigProvider
 from .camera_capture import CameraCapture
-from .frame_processing import GPUFrameProcessor
+from .frame_processing import PanoramaFrameProcessor
 from .crop_stitching import HorizontalStitcher
 from .display_manager import OpenCVDisplayManager
 from .panorama_viewer import PanoramaViewer
@@ -25,7 +25,7 @@ class PanoramaViewerFactory:
             frame_providers.append(camera)
 
         # 프레임 처리기 생성
-        frame_processor = GPUFrameProcessor(config, resolution)
+        frame_processor = PanoramaFrameProcessor(config, resolution)
 
         # 스티처 생성
         stitcher = HorizontalStitcher(
