@@ -156,25 +156,3 @@ panorama_project/
 3. **확장성**: 새로운 기능 추가 시 기존 코드 수정 최소화
 4. **재사용성**: 각 컴포넌트를 다른 프로젝트에서도 재사용 가능
 5. **의존성 관리**: Factory 패턴을 통한 깔끔한 의존성 주입
-
-
----
-> - 's' : screenshot
-> - 'q' or 'esc' : quit
-> - 가로 crop 방식
->   - 사용자가 config 내 horizontal_crop 직접 설정
->   - config 내 카메라 당 시야각(desired_view_angle)을 설정하면, 가로 최대화각(fov)을 기반으로 crop 영역 계산 (horizontal_crop은 주석처리)
-> - 세로 crop 방식
->   - 사용자가 config 내 vertical_crop 직접 설정
->   - `_auto_calculate_vertical_crop`이 모든 프레임에서 유효한 최소 영역을 찾아 크롭 범위를 계산
-> - calibration :
->   - offset : (y축 중심) - (선택한 수평선의 y 평균값)
->     - 선택한 수평선 > y축 중심 : 양수
->     - 좌상단 원점 기준으로 이동 변환 
->     - 중심보다 수평선이 위에 있을 경우 아래방향으로 이동변환해주기 위해 양수의 보정 offset값이 들어가야 함. 
->   - angle : 선택한 수평선의 x1, y1, x2, y2로 arctan 계산
->     - 좌상단이 원점이므로, 우상향이 음수
->     - 회전보정에 쓰이는 함수에서는 반시계방향 각도가 양수
->     - 우상향 line일 경우 우하향 각도로 보정해주기 위해 양수의 보정 각도값이 들어가야 함.
-
-

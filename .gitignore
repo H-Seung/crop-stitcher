@@ -7,4 +7,5 @@
 /prev2
 /del
 memo.txt
-/debug_images
+/calibration/debug_images
+/etc/__pycache__

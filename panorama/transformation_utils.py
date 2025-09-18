@@ -19,7 +19,7 @@ class TransformationUtils:
 
         # 수직 offset
         if offset != 0:
-            M = np.float32([[1, 0, 0], [0, 1, offset]])
+            M = np.float32([[1, 0, 0], [0, 1, -offset]])
             frame = cv2.warpAffine(frame, M, (w, h))
 
         return frame
@@ -36,7 +36,7 @@ class TransformationUtils:
 
         # 수직 offset
         if offset != 0:
-            M = np.float32([[1, 0, 0], [0, 1, offset]])
+            M = np.float32([[1, 0, 0], [0, 1, -offset]])
             gpu_frame = cv2.cuda.warpAffine(gpu_frame, M, (w, h))
 
         return gpu_frame

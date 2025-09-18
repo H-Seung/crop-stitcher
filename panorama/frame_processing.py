@@ -26,7 +26,7 @@ class CropCalculator:
         ):
             crop_top = int(crop_config['crop_top'])
             crop_bottom = int(crop_config['crop_bottom'])
-            self.logger.info(f"config.yaml 기반 크롭 범위: top={crop_top}, bottom={crop_bottom}")
+            self.logger.info(f"config 설정값 기반 크롭 범위: top={crop_top}, bottom={crop_bottom}")
             return crop_top, crop_bottom
 
         return self._auto_calculate_vertical_crop()
@@ -37,7 +37,7 @@ class CropCalculator:
         회전 및 정렬 보정이 적용된 각 카메라 프레임들을 처리한 후,
         모든 프레임에서 유효한 최소 영역을 찾아 크롭 범위를 계산
         """
-        self.logger.info(f"config.yaml 내 vertical_crop 값이 없으므로 _auto_calculate_vertical_crop 실행")
+        self.logger.info(f"config 파일 내 vertical_crop 값이 없으므로 _auto_calculate_vertical_crop 실행")
         processed_frames = []
 
         # 각 카메라별로 샘플 프레임을 캡처하고 실제 전처리 과정을 거침
@@ -71,7 +71,7 @@ class CropCalculator:
             # 그레이스케일로 변환하여 유효 영역 찾기
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             # 0이 아닌 픽셀들의 위치 찾기
-            non_zero_rows = np.where(np.any(gray > 0, axis=1))[0] # y축으로 내려가면서 하나라도 black이 아닌 행 번호들
+            non_zero_rows = np.where(np.all(gray > 0, axis=1))[0] # y축으로 내려가면서 하나라도 black이 아닌 행 번호들
             if len(non_zero_rows) > 0:
                 valid_top = non_zero_rows[0]
                 valid_bottom = non_zero_rows[-1] + 1
