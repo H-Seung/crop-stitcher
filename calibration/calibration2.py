@@ -134,8 +134,8 @@ def calibrate_all_cameras(config, no_config_write=0):
 
     # resolution 초기화
     if config['camera'].get('resolution', None) is not None:
-        resolution = (config['camera']['resolution']['height'],
-                      config['camera']['resolution']['width'])
+        resolution = (config['camera']['resolution']['width'],
+                      config['camera']['resolution']['height'])
     else:
         resolution = None
 
@@ -148,8 +148,8 @@ def calibrate_all_cameras(config, no_config_write=0):
         print(f"=================== cam{i} 시작 ===================")
         cap = cv2.VideoCapture(dev, cv2.CAP_V4L2)
         if resolution is not None:
-            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution[0])
-            cap.set(cv2.CAP_PROP_FRAME_WIDTH, resolution[1])
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, resolution[0])
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution[1])
 
         # 실시간 프리뷰 윈도우 생성
         preview_winname = f"cam{i}_preview - Press SPACE or ENTER to capture"

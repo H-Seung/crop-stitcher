@@ -17,7 +17,7 @@ class CropCalculator:
         crop_config = self.config['calibration'].get('vertical_crop', {})
         if crop_config is None:
             crop_config = {}
-        self.logger.info(f"crop_config : {crop_config}")
+        self.logger.info(f"vertical_crop config : {crop_config}")
 
         if (
                 crop_config and
@@ -71,7 +71,7 @@ class CropCalculator:
             # 그레이스케일로 변환하여 유효 영역 찾기
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             # 0이 아닌 픽셀들의 위치 찾기
-            non_zero_rows = np.where(np.all(gray > 0, axis=1))[0] # y축으로 내려가면서 하나라도 black이 아닌 행 번호들
+            non_zero_rows = np.where(np.any(gray > 0, axis=1))[0] # y축으로 내려가면서 하나라도 black이 아닌 행 번호들
             if len(non_zero_rows) > 0:
                 valid_top = non_zero_rows[0]
                 valid_bottom = non_zero_rows[-1] + 1
@@ -97,6 +97,66 @@ class CropCalculator:
 
         self.logger.info(f"자동 크롭 범위 (처리된 프레임 기준): top={crop_top}, bottom={crop_bottom}")
         return crop_top, crop_bottom
+
+    # def _auto_calculate_vertical_crop(self) -> Tuple[int, int]:
+    #     """
+    #     (config 값 없을 시) 상하 자동 계산 크롭
+    #     회전 + 오프셋 적용 후 생기는 검은 영역(삼각형)을 마스크 기반으로 제거
+    #     """
+    #     self.logger.info("config 파일 내 vertical_crop 값이 없으므로 _auto_calculate_vertical_crop 실행")
+    #     processed_frames = []
+    #     masks = []
+    #
+    #     for camera_id, dev in enumerate(self.config['camera']['device_paths']):
+    #         cap = cv2.VideoCapture(dev, cv2.CAP_V4L2)
+    #         cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.resolution[0])
+    #         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.resolution[1])
+    #         ret, frame = cap.read()
+    #         cap.release()
+    #
+    #         if not ret:
+    #             self.logger.warning(f"샘플 캡처 실패: {dev}")
+    #             continue
+    #
+    #         h, w = frame.shape[:2]
+    #         processed_frame = TransformationUtils.apply_cpu_transformations(
+    #             frame, h, w, self.config, camera_id
+    #         )
+    #
+    #         if processed_frame is None:
+    #             self.logger.warning(f"카메라 {camera_id} 프레임 처리 실패")
+    #             continue
+    #
+    #         processed_frames.append(processed_frame)
+    #
+    #         # --- 마스크 생성: 회전/offset 이후 검은 영역 검출 ---
+    #         gray = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2GRAY)
+    #         mask = (gray > 0).astype(np.uint8)  # 유효 픽셀=1, 검정=0
+    #         masks.append(mask)
+    #
+    #     if not masks:
+    #         raise RuntimeError("카메라 프레임 처리 실패로 크롭 계산 불가")
+    #
+    #     # 모든 카메라의 유효 마스크 교집합
+    #     combined_mask = np.prod(masks, axis=0)  # 모두 1인 부분만 유효
+    #
+    #     # 유효 영역 row 범위 찾기
+    #     non_zero_rows = np.where(np.any(combined_mask > 0, axis=1))[0]
+    #     if len(non_zero_rows) == 0:
+    #         self.logger.warning("유효 영역 없음 → 전체 영역 사용")
+    #         return 0, self.resolution[1]
+    #
+    #     valid_top, valid_bottom = non_zero_rows[0], non_zero_rows[-1] + 1
+    #
+    #     # 안전 마진 적용
+    #     margin = self.config['calibration']['vertical_crop']['margin']
+    #     margin_px = int(self.resolution[1] * margin)
+    #     crop_top = max(0, valid_top + margin_px)
+    #     crop_bottom = min(self.resolution[1], valid_bottom - margin_px)
+    #
+    #     self.logger.info(f"자동 크롭 범위 (마스크 기준): top={crop_top}, bottom={crop_bottom}")
+    #     return crop_top, crop_bottom
+
 
     def calculate_horizontal_crop_from_fov(self, camera_id: int) -> Tuple[int, int]:
         # 카메라 가로 최대화각을 바탕으로 좌우 보고싶은 각도만큼 크롭
