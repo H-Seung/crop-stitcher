@@ -1,15 +1,8 @@
-from typing import List
-from .config_manager import YamlConfigProvider
-from .camera_capture import CameraCapture
-from .frame_processing import PanoramaFrameProcessor
-from .crop_stitching import HorizontalStitcher
-from .display_manager import OpenCVDisplayManager
-from .panorama_viewer import PanoramaViewer
+class PanoramaSystemFactory:
+    """Factory Pattern: 의존성 주입을 통한 시스템 생성"""
 
-
-class PanoramaViewerFactory:
     @staticmethod
-    def create_viewer(config_path: str = "config.yaml") -> PanoramaViewer:
+    def create_system(config_path: str = "config.yaml") -> PanoramaSystem:
         # 설정 로드
         config_provider = YamlConfigProvider(config_path)
         config = config_provider.get_config()
@@ -18,14 +11,14 @@ class PanoramaViewerFactory:
         resolution = (config['camera']['resolution']['width'],
                       config['camera']['resolution']['height'])
 
-        # 카메라들 생성
+        # 카메라 생성
         frame_providers = []
         for i, device_path in enumerate(config['camera']['device_paths']):
             camera = CameraCapture(i, device_path, resolution)
             frame_providers.append(camera)
 
         # 프레임 처리기 생성
-        frame_processor = PanoramaFrameProcessor(config, resolution)
+        frame_processor = GPUFrameProcessor(config, resolution)
 
         # 스티처 생성
         stitcher = HorizontalStitcher(
@@ -37,9 +30,15 @@ class PanoramaViewerFactory:
         # 디스플레이 매니저 생성
         display_manager = OpenCVDisplayManager(config)
 
-        return PanoramaViewer(
+        return PanoramaSystem(
+            config_provider=config_provider,
             frame_providers=frame_providers,
             frame_processor=frame_processor,
             stitcher=stitcher,
             display_manager=display_manager
         )
+
+if __name__ == '__main__':
+    system = PanoramaSystemFactory.create_system()
+    system.initialize()
+    system.run()

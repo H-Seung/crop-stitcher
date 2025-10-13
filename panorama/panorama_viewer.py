@@ -16,7 +16,6 @@ class PanoramaViewer:
         self.frame_processor = frame_processor
         self.stitcher = stitcher
         self.display_manager = display_manager
-        self.window_name = "360 Panorama"
         self.logger = logging.getLogger("PanoramaViewer")
         logging.basicConfig(level=logging.INFO)
 
@@ -28,7 +27,7 @@ class PanoramaViewer:
         for provider in self.frame_providers:
             provider.start()
 
-        self.display_manager.initialize_display(self.window_name)
+        self.display_manager.initialize_display("Panorama")
 
     def run(self):
         self.logger.info("파노라마 뷰어 시작")
@@ -48,7 +47,7 @@ class PanoramaViewer:
                     else:
                         frames.append(None)
 
-                if all(f is None or f.size == 0 for f in frames):
+                if all(f is None or f.size == 0 for f in frames): # 전부 invalid일 경우,
                     continue
 
                 # 스티칭
@@ -71,7 +70,7 @@ class PanoramaViewer:
                 if action == "quit":
                     break
                 elif action == "screenshot":
-                    filename = f"panorama_{time.strftime('%Y%m%d_%H%M%S')}.jpg"
+                    filename = f"panorama_screenshot/panorama_{time.strftime('%Y%m%d_%H%M%S')}.jpg"
                     cv2.imwrite(filename, panorama)
                     self.logger.info(f"스크린샷 저장: {filename}")
 

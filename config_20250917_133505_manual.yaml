@@ -1,0 +1,60 @@
+calibration:
+  horizontal_scale:
+    cam0: 1.0
+    cam1: 1.0
+    cam2: 1.0
+    cam3: 1.0
+    cam4: 1.0
+    cam5: 1.0
+  rotation_correction:
+    cam0: -1.03
+    cam1: -2.01
+    cam2: -1.82
+    cam3: -1.03
+    cam4: 2.04
+    cam5: -0.4
+  vertical_crop:
+    margin: 0.018
+  vertical_offset:
+    cam0: -18
+    cam1: -21
+    cam2: -34
+    cam3: 2
+    cam4: -14
+    cam5: 0
+camera:
+  count: 6
+  device_paths:
+  - /dev/video0
+  - /dev/video1
+  - /dev/video2
+  - /dev/video3
+  - /dev/video4
+  - /dev/video5
+  fov_deg: 112
+  resolution:
+    width: 1920
+    height: 1080
+debug:
+  print_fps: true
+  save_frames: false
+  show_blend_regions: true
+  show_crop_lines: false
+  show_individual_cameras: false
+display:
+  fullscreen: false
+  resolution:
+    width: 1920
+    height: 1080
+  window_name: 360_panorama
+performance:
+  frame_skip: 0
+  processing_scale: 0.5
+  resize_for_processing: true
+  thread_count: 6
+  use_gpu_mat: true
+  use_threading: true
+stitching:
+  desired_view_angle: 70
+  horizon_line:
+    y_ratio: 0.5
